@@ -17,7 +17,7 @@ Possible features to add
 
 Basic example:
 ```C
-#define SI_NORMALMAP_IMPLEMENTATION
+#define C_NORMALMAP_IMPLEMENTATION
 #include "CNormalMap.h"
 
 ...
