@@ -29,7 +29,17 @@ Comparison of lighting without and with normal map(and a second "detail" normal 
 
 ### Available functions
 ```C
+typedef enum
+{
+    cinm_greyscale_none,
+    cinm_greyscale_lightness,
+    cinm_greyscale_average,
+    cinm_greyscale_luminance,
+    cinm_greyscale_count,
+} cinm_greyscale_type;
+
 void cinm_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, cinm_greyscale_type type);
+
 uint32_t *cinm_normal_map(const uint32_t *in, int32_t w, int32_t h, float scale, float blurRadius, cinm_greyscale_type greyscaleType);
 ```
 
