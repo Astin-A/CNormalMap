@@ -40,8 +40,8 @@
 #endif
 
 
-#define cinm__min(a, b) ((a) < (b) ? (a) : (b))
-#define cinm__max(a, b) ((a) > (b) ? (a) : (b))
+#ifndef CINM_GREYSCALE_TYPE
+#define CINM_GREYSCALE_TYPE
 
 typedef enum
 {
@@ -51,8 +51,10 @@ typedef enum
     cinm_greyscale_luminance,
     cinm_greyscale_count,
 } cinm_greyscale_type;
+#endif
 
 #ifndef C_NORMALMAP_IMPLEMENTATION
+
 CINM_DEF void cinm_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, cinm_greyscale_type type);
 
 //Converts values in "buffer" to greyscale  using either the
@@ -127,6 +129,9 @@ CINM_DEF uint32_t *cinm_normal_map(const uint32_t *in, int32_t w, int32_t h, flo
 
 #endif //AVX_AVAILABLE
 #endif //C_NORMALMAP_NO_CIMD
+
+#define cinm__min(a, b) ((a) < (b) ? (a) : (b))
+#define cinm__max(a, b) ((a) > (b) ? (a) : (b))
 
 typedef struct 
 {
@@ -271,14 +276,14 @@ CINM_DEF void
 cinm__gaussian_box(uint32_t *in, uint32_t *out, int32_t w, int32_t h, float r)
 {
     float boxes[3];
-    sinm__generate_gaussian_box(boxes, sizeof(boxes)/sizeof(boxes[0]), r);
+    cinm__generate_gaussian_box(boxes, sizeof(boxes)/sizeof(boxes[0]), r);
 
-    sinm__box_blur_h(in, out, w, h, (boxes[0]-1)/2);
-    sinm__box_blur_v(out, in, w, h, (boxes[0]-1)/2);
-    sinm__box_blur_h(in, out, w, h, (boxes[1]-1)/2);
-    sinm__box_blur_v(out, in, w, h, (boxes[1]-1)/2);
-    sinm__box_blur_h(in, out, w, h, (boxes[2]-1)/2);
-    sinm__box_blur_v(out, in, w, h, (boxes[2]-1)/2);
+    cinm__box_blur_h(in, out, w, h, (boxes[0]-1)/2);
+    cinm__box_blur_v(out, in, w, h, (boxes[0]-1)/2);
+    cinm__box_blur_h(in, out, w, h, (boxes[1]-1)/2);
+    cinm__box_blur_v(out, in, w, h, (boxes[1]-1)/2);
+    cinm__box_blur_h(in, out, w, h, (boxes[2]-1)/2);
+    cinm__box_blur_v(out, in, w, h, (boxes[2]-1)/2);
 
     memcpy(out, in, w*h*sizeof(uint32_t));
 }
