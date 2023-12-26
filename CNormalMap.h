@@ -29,7 +29,7 @@
     #define cinm_inline
     #endif
 #else
-    #define cnmp_inline __forceinline
+    #define cinm_inline __forceinline
 #endif
 
 #ifndef SI_NORMALMAP_IMPLEMENTATION
