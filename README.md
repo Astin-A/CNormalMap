@@ -47,3 +47,7 @@ cinm_normal_map(image, normalmap, imageWidth, imageHeight, 1.0f);
 ... write normalmap to a file
 
 ```
+
+
+ Currently if you want to enable simd(#define C_NORMALMAP_USE_SIMD) for the greyscale function
+ you need to ensure the pixel count of the image is a multiple of either 4(for SSE) or 8(for AVX).
