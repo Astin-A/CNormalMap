@@ -17,16 +17,16 @@ Possible features to add
 
 Basic example:
 ```C
-#define SI_NORMALMAP_IMPLEMENTATION
-#include "si_normalmap.h"
+#define C_NORMALMAP_IMPLEMENTATION
+#include "CNormalMap.h"
 
 ...
 
 uint32_t *image = ...load pixels from some image;
-sinm_greyscale(image, imageWidth*imageHeight, sinm_greyscaleType_average);
+cinm_greyscale(image, imageWidth*imageHeight, cinm_greyscaleType_average);
 
 uint32_t *normalmap = ...allocate a second buffer of the same dimensions
-sinm_normal_map(image, normalmap, imageWidth, imageHeight, 1.0f);
+cinm_normal_map(image, normalmap, imageWidth, imageHeight, 1.0f);
 
 ... write normalmap to a file
 
