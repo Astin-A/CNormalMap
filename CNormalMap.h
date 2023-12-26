@@ -39,6 +39,10 @@
     #define cinm_inline __forceinline
 #endif
 
+
+#ifndef CINM_GREYSCALE_TYPE
+#define CINM_GREYSCALE_TYPE
+
 typedef enum
 {
     cinm_greyscale_none,
@@ -47,8 +51,10 @@ typedef enum
     cinm_greyscale_luminance,
     cinm_greyscale_count,
 } cinm_greyscale_type;
+#endif
 
 #ifndef C_NORMALMAP_IMPLEMENTATION
+
 CINM_DEF void cinm_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, cinm_greyscale_type type);
 
 //Converts values in "buffer" to greyscale  using either the
@@ -124,6 +130,9 @@ CINM_DEF uint32_t *cinm_normal_map(const uint32_t *in, int32_t w, int32_t h, flo
 #endif //AVX_AVAILABLE
 #endif //C_NORMALMAP_NO_CIMD
 
+#define cinm__min(a, b) ((a) < (b) ? (a) : (b))
+#define cinm__max(a, b) ((a) > (b) ? (a) : (b))
+
 typedef struct 
 {
     int32_t x, y;
@@ -141,11 +150,6 @@ cinm__length(float x, float y, float z)
     return sqrtf(x*x + y*y + z*z);
 }
 
-cinm_inline static float 
-cinm__linearize_srgb(float value)
-{
-    return value*value;
-}
 
 cinm_inline static cinm__v3 
 cinm__normalized(float x, float y, float z) 
@@ -166,7 +170,7 @@ cinm__normalized(float x, float y, float z)
 cinm_inline static uint32_t 
 cinm__lightness_average(uint32_t r, uint32_t g, uint32_t b)
 {
-    return (max(max(r, g), b)+min(min(r, g), b))/2;
+    return (cinm__max(cinm__max(r, g), b)+cinm__min(cinm__min(r, g), b))/2;
 }
 
 cinm_inline static uint32_t 
@@ -187,24 +191,24 @@ cinm__greyscale_from_byte(uint8_t c)
     return (c | c << 8u | c << 16u | 255u << 24u);  
 }
 
-CINM_DEF double *
-cinm__generate_gaussian_box(uint32_t n, double sigma)
+CINM_DEF void
+cinm__generate_gaussian_box(float *outBoxes, int32_t n, float sigma)
 {
-    double wIdeal = sqrt((12.0*sigma*sigma/n)+1);
-    double wl = floor(wIdeal);
-    if((int64_t)wl%2 == 0) --wl;
-    double wu = wl+2;
+    float wIdeal = sqrtf((12.0f*sigma*sigma/n)+1.0f);
+    int32_t wl = floorf(wIdeal);
+    if(wl%2 == 0) --wl;
+    int32_t wu = wl+2;
 
-    double mIdeal = (12.0*sigma*sigma - n*wl*wl - 4*n*wl - 3*n)/(-4*wl - 4);
-    double m = round(mIdeal);
+    float mIdeal = (12.0f*sigma*sigma - n*wl*wl - 4.0f*n*wl - 3.0f*n)/(-4.0f*wl - 4.0f);
+    int32_t m = roundf(mIdeal);
 
-    double *boxes = malloc(n*sizeof(double));
-    for(int i = 0; i < n; ++i) boxes[i] = (i < m) ? wl : wu;
-    return boxes;
+    for(int i = 0; i < n; ++i) {
+        outBoxes[i] = (i < m) ? wl : wu;
+    }
 }
 
 CINM_DEF void 
-cinm__box_blur_h(uint32_t *in, uint32_t *out, int32_t w, int32_t h, int32_t r)
+cinm__box_blur_h(uint32_t *in, uint32_t *out, int32_t w, int32_t h, float r)
 {
     float invR = 1.0f/(r+r+1);
     for(int i = 0; i < h; ++i) {
@@ -271,17 +275,17 @@ cinm__box_blur_v(uint32_t *in, uint32_t *out, int32_t w, int32_t h, float r)
 CINM_DEF void 
 cinm__gaussian_box(uint32_t *in, uint32_t *out, int32_t w, int32_t h, float r)
 {
-    double *boxes = cinm__generate_gaussian_box(3, r);
-    if(boxes) {
-        cinm__box_blur_h(in, out, w, h, (boxes[0]-1)/2);
-        cinm__box_blur_v(out, in, w, h, (boxes[0]-1)/2);
-        cinm__box_blur_h(in, out, w, h, (boxes[1]-1)/2);
-        cinm__box_blur_v(out, in, w, h, (boxes[1]-1)/2);
-        cinm__box_blur_h(in, out, w, h, (boxes[2]-1)/2);
-        cinm__box_blur_v(out, in, w, h, (boxes[2]-1)/2);
-        memcpy(out, in, w*h*sizeof(uint32_t));
-        free(boxes);
-    }
+    float boxes[3];
+    cinm__generate_gaussian_box(boxes, sizeof(boxes)/sizeof(boxes[0]), r);
+
+    cinm__box_blur_h(in, out, w, h, (boxes[0]-1)/2);
+    cinm__box_blur_v(out, in, w, h, (boxes[0]-1)/2);
+    cinm__box_blur_h(in, out, w, h, (boxes[1]-1)/2);
+    cinm__box_blur_v(out, in, w, h, (boxes[1]-1)/2);
+    cinm__box_blur_h(in, out, w, h, (boxes[2]-1)/2);
+    cinm__box_blur_v(out, in, w, h, (boxes[2]-1)/2);
+
+    memcpy(out, in, w*h*sizeof(uint32_t));
 }
 
 
@@ -308,8 +312,8 @@ cinm__sobel3x3_normals(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, 
 
             for(int32_t a = 0; a < 3; ++a) {
                 for(int32_t b = 0; b < 3; ++b) {
-                    int32_t xIdx = min(w-1, max(1, x+b-1));
-                    int32_t yIdx = min(h-1, max(1, y+a-1));
+                    int32_t xIdx = cinm__min(w-1, cinm__max(1, x+b-1));
+                    int32_t yIdx = cinm__min(h-1, cinm__max(1, y+a-1));
                     int32_t index = yIdx*w+xIdx;
                     uint32_t pixel = in[index] & 0xFFu;
                     xmag += pixel*xk[a][b];
@@ -439,11 +443,12 @@ cinm__cimd_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, ci
 
 CINM_DEF int
 cinm_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type)
-SINM_DEF int
+CINM_DEF int
 cinm_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, cinm_greyscale_type type)
 {
-    int32_t count = w*h;
+
 #ifndef C_NORMALMAP_NO_CIMD
+    int32_t count = w*h;
     if(count > 0 && count % CINM_CIMD_INCREMENT == 0) { 
         cinm__cimd_greyscale(in, out, w, h, type);
     } else {
@@ -462,20 +467,20 @@ cinm_normal_map(const uint32_t *in, int32_t w, int32_t h, float scale, float blu
 
     //Intermediate buffer for processing so we don't have to change the input buffer
     int shouldFreeIntermediate = 0;
-    uint32_t *intermediate = malloc(w*h*sizeof(uint32_t));
+    uint32_t *intermediate = (uint32_t *)malloc(w*h*sizeof(uint32_t));
     if(!intermediate) return NULL;
 
     uint32_t *result = malloc(w*h*sizeof(uint32_t));
     if(result) {
-        if(greyscaleType != sinm_greyscale_none) {
-            sinm_greyscale(in, result, w, h, greyscaleType);
+        if(greyscaleType != cinm_greyscale_none) {
+            cinm_greyscale(in, result, w, h, greyscaleType);
         } else {
             memcpy(result, in, w*h*sizeof(uint32_t));
         }
 
-        float radius = min(min(w,h), max(0, blurRadius));
-        sinm__gaussian_box(result, intermediate, w, h, radius);
-        sinm__sobel3x3_normals(intermediate, result, w, h, scale);
+        float radius = cinm__min(cinm__min(w,h), cinm__max(0, blurRadius));
+        cinm__gaussian_box(result, intermediate, w, h, radius);
+        cinm__sobel3x3_normals(intermediate, result, w, h, scale);
     }
 
     free(intermediate);
