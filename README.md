@@ -10,7 +10,7 @@ Features:
  - Convert greyscale buffer to a normal map
 
 Possible features to add
- - SIMD version of normal map generation
+ - CIMD version of normal map generation
  - Filtering options for normal map generation (ie: 3x3 sobel, etc)
  - Blurring functionality. But most likely this will be made in a seperate library. I'd prefer to keep this simple.
 
@@ -49,5 +49,5 @@ cinm_normal_map(image, normalmap, imageWidth, imageHeight, 1.0f);
 ```
 
 
- Currently if you want to enable simd(#define C_NORMALMAP_USE_SIMD) for the greyscale function
+ Currently if you want to enable cimd(#define C_NORMALMAP_USE_CIMD) for the greyscale function
  you need to ensure the pixel count of the image is a multiple of either 4(for SSE) or 8(for AVX).
