@@ -186,24 +186,24 @@ cinm__greyscale_from_byte(uint8_t c)
     return (c | c << 8u | c << 16u | 255u << 24u);  
 }
 
-CINM_DEF double *
-cinm__generate_gaussian_box(uint32_t n, double sigma)
+CINM_DEF void
+cinm__generate_gaussian_box(float *outBoxes, int32_t n, float sigma)
 {
-    double wIdeal = sqrt((12.0*sigma*sigma/n)+1);
-    double wl = floor(wIdeal);
-    if((int64_t)wl%2 == 0) --wl;
-    double wu = wl+2;
+    float wIdeal = sqrtf((12.0f*sigma*sigma/n)+1.0f);
+    int32_t wl = floorf(wIdeal);
+    if(wl%2 == 0) --wl;
+    int32_t wu = wl+2;
 
-    double mIdeal = (12.0*sigma*sigma - n*wl*wl - 4*n*wl - 3*n)/(-4*wl - 4);
-    double m = round(mIdeal);
+    float mIdeal = (12.0f*sigma*sigma - n*wl*wl - 4.0f*n*wl - 3.0f*n)/(-4.0f*wl - 4.0f);
+    int32_t m = roundf(mIdeal);
 
-    double *boxes = (double *)malloc(n*sizeof(double));
-    for(int i = 0; i < n; ++i) boxes[i] = (i < m) ? wl : wu;
-    return boxes;
+    for(int i = 0; i < n; ++i) {
+        outBoxes[i] = (i < m) ? wl : wu;
+    }
 }
 
 CINM_DEF void 
-cinm__box_blur_h(uint32_t *in, uint32_t *out, int32_t w, int32_t h, int32_t r)
+cinm__box_blur_h(uint32_t *in, uint32_t *out, int32_t w, int32_t h, float r)
 {
     float invR = 1.0f/(r+r+1);
     for(int i = 0; i < h; ++i) {
@@ -270,17 +270,17 @@ cinm__box_blur_v(uint32_t *in, uint32_t *out, int32_t w, int32_t h, float r)
 CINM_DEF void 
 cinm__gaussian_box(uint32_t *in, uint32_t *out, int32_t w, int32_t h, float r)
 {
-    double *boxes = cinm__generate_gaussian_box(3, r);
-    if(boxes) {
-        cinm__box_blur_h(in, out, w, h, (boxes[0]-1)/2);
-        cinm__box_blur_v(out, in, w, h, (boxes[0]-1)/2);
-        cinm__box_blur_h(in, out, w, h, (boxes[1]-1)/2);
-        cinm__box_blur_v(out, in, w, h, (boxes[1]-1)/2);
-        cinm__box_blur_h(in, out, w, h, (boxes[2]-1)/2);
-        cinm__box_blur_v(out, in, w, h, (boxes[2]-1)/2);
-        memcpy(out, in, w*h*sizeof(uint32_t));
-        free(boxes);
-    }
+    float boxes[3];
+    sinm__generate_gaussian_box(boxes, sizeof(boxes)/sizeof(boxes[0]), r);
+
+    sinm__box_blur_h(in, out, w, h, (boxes[0]-1)/2);
+    sinm__box_blur_v(out, in, w, h, (boxes[0]-1)/2);
+    sinm__box_blur_h(in, out, w, h, (boxes[1]-1)/2);
+    sinm__box_blur_v(out, in, w, h, (boxes[1]-1)/2);
+    sinm__box_blur_h(in, out, w, h, (boxes[2]-1)/2);
+    sinm__box_blur_v(out, in, w, h, (boxes[2]-1)/2);
+
+    memcpy(out, in, w*h*sizeof(uint32_t));
 }
 
 
@@ -434,7 +434,7 @@ cinm__cimd_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, ci
         } break;
     }
 }
-#endif //C_NORMALMAP_USE_CIMD
+#endif //C_NORMALMAP_NO_CIMD
 
 CINM_DEF int
 cinm_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type)
@@ -482,3 +482,4 @@ cinm_normal_map(const uint32_t *in, int32_t w, int32_t h, float scale, float blu
     return result;
 }
 
+#endif //ifndef C_NORMALMAP_IMPLEMENTATION
