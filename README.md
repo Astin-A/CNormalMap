@@ -18,6 +18,13 @@ Possible features to add
 
 ![input](https://imgur.com/Grx9Uvs.png) ![output](https://imgur.com/SWFhlh7.png)
 
+
+### Available functions
+```C
+void cinm_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type);
+void cinm_normal_map(const uint32_t *inBuffer, uint32_t *outBuffer, int32_t w, int32_t h, float scale);
+```
+
 ### Basic Usage:
 ```C
 #define C_NORMALMAP_IMPLEMENTATION
