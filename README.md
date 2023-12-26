@@ -1,2 +1,2 @@
 # CNormalMap
- A very simple normal map generator library
+ A very simple Single Header normal map generator library
