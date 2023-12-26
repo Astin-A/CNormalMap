@@ -151,13 +151,16 @@ cinm__linearize_srgb(float value)
 cinm_inline static cinm__v3 
 cinm__normalized(float x, float y, float z) 
 {
+    sinm__v3 result;
     float len = cinm__length(x, y, z);
-    float invLen = 1.0f / len;
-    cinm__v3 result = {
-        x * invLen,
-        y * invLen, 
-        z * invLen
-    };
+    if(len > 1e-04f) {
+        float invLen = 1.0f / len;
+        result.x = x*invLen;
+        result.y = y*invLen;
+        result.z = z*invLen;
+    } else {
+        result.x = result.y = result.z = 0.0f;
+    }
     return result;
 }
 
