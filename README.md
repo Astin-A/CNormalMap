@@ -1,10 +1,9 @@
 # CNormalMap
- A very simple Single Header normal map generator library
+A very simple normal map generator written as a single header library.
 
 
- ## WORK IN PROGRESS. DO NOT USE(YET)
+ ## WORK IN PROGRESS. USE AT OWN RISK
 
-A very simple normal map generator written as a single header library. 
 
 Features:
  - Convert color buffer to greyscale using either lightness, average or luminance methods(with SSE/AVX versions available)
@@ -15,7 +14,24 @@ Possible features to add
  - Filtering options for normal map generation (ie: 3x3 sobel, etc)
  - Blurring functionality. But most likely this will be made in a seperate library. I'd prefer to keep this simple.
 
-Basic example:
+### example:
+
+Input:
+
+![input](https://imgur.com/Grx9Uvs.png) 
+
+Output:
+
+![output](https://imgur.com/SWFhlh7.png)
+
+
+### Available functions
+```C
+void cinm_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type);
+void cinm_normal_map(const uint32_t *inBuffer, uint32_t *outBuffer, int32_t w, int32_t h, float scale);
+```
+
+### Basic Usage:
 ```C
 #define C_NORMALMAP_IMPLEMENTATION
 #include "CNormalMap.h"
