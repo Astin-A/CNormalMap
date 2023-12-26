@@ -32,7 +32,7 @@
     #define cinm_inline __forceinline
 #endif
 
-#ifndef SI_NORMALMAP_IMPLEMENTATION
+#ifndef C_NORMALMAP_IMPLEMENTATION
 enum cinm_greyscale_type;
 
 //Converts values in "buffer" to greyscale  using either the
@@ -44,9 +44,9 @@ CINM_DEF void cinm_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_typ
 //"scale" adjusts the intensity of the result
 CINM_DEF void cinm_normal_map(const uint32_t *inBuffer, uint32_t *outBuffer, int32_t w, int32_t h, int32_t comp, float scale);
 
-#else //SI_NORMALMAP_IMPLEMENTATION
+#else //C_NORMALMAP_IMPLEMENTATION
 
-#ifdef SI_NORMALMAP_USE_SIMD
+#ifdef C_NORMALMAP_USE_SIMD
 
 #include <intrin.h> 
 #include <emmintrin.h> 
@@ -116,7 +116,7 @@ CINM_DEF void cinm_normal_map(const uint32_t *inBuffer, uint32_t *outBuffer, int
 #define cimd__mul_ps(a, b) _mm_mul_ps(a, b)
 
 #endif //AVX_AVAILABLE
-#endif //SI_NORMALMAP_USE_SIMD
+#endif //C_NORMALMAP_USE_SIMD
 
 typedef enum
 {
@@ -215,7 +215,7 @@ cinm__greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type)
     }
 }
 
-#ifdef SI_NORMALMAP_USE_SIMD
+#ifdef C_NORMALMAP_USE_SIMD
 static void
 cinm__cimd_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type)
 {
@@ -286,12 +286,12 @@ cinm__cimd_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type)
         } break;
     }
 }
-#endif //SI_NORMALMAP_USE_SIMD
+#endif //C_NORMALMAP_USE_SIMD
 
 CINM_DEF void
 cinm_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type)
 {
-#ifdef SI_NORMALMAP_USE_SIMD
+#ifdef C_NORMALMAP_USE_SIMD
     cinm__cimd_greyscale(buffer, count, type);
 #else
     cinm__greyscale(buffer, count, type);
@@ -343,4 +343,4 @@ cinm_normal_map(const uint32_t *inBuffer, uint32_t *outBuffer, int32_t w, int32_
         }
     }
 }
-#endif //ifndef SI_NORMALMAP_IMPLEMENTATION
+#endif //ifndef C_NORMALMAP_IMPLEMENTATION
