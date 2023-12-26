@@ -441,9 +441,8 @@ cinm__cimd_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, ci
 }
 #endif //C_NORMALMAP_NO_CIMD
 
-CINM_DEF int
-cinm_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type)
-CINM_DEF int
+
+CINM_DEF void
 cinm_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, cinm_greyscale_type type)
 {
 
@@ -457,16 +456,12 @@ cinm_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, cinm_gre
 #else
     cinm__greyscale(in, out, w, h, type);
 #endif
-    return 1;
+
 }
 
 CINM_DEF uint32_t * 
 cinm_normal_map(const uint32_t *in, int32_t w, int32_t h, float scale, float blurRadius, cinm_greyscale_type greyscaleType)
 {
-    if(!in) return NULL;
-
-    //Intermediate buffer for processing so we don't have to change the input buffer
-    int shouldFreeIntermediate = 0;
     uint32_t *intermediate = (uint32_t *)malloc(w*h*sizeof(uint32_t));
     if(!intermediate) return NULL;
 
