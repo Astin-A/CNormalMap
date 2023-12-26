@@ -1,10 +1,9 @@
 # CNormalMap
- A very simple Single Header normal map generator library
+A very simple normal map generator written as a single header library.
 
 
  ## WORK IN PROGRESS. USE AT OWN RISK
 
-A very simple normal map generator written as a single header library. 
 
 Features:
  - Convert color buffer to greyscale using either lightness, average or luminance methods(with SSE/AVX versions available)
