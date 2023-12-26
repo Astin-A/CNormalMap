@@ -355,7 +355,7 @@ cinm__greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, cinm_gr
     }
 }
 
-#ifdef C_NORMALMAP_USE_CIMD
+#ifndef C_NORMALMAP_NO_CIMD
 static void
 cinm__cimd_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, cinm_greyscale_type type)
 {
@@ -435,7 +435,7 @@ cinm__cimd_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, ci
         } break;
     }
 }
-#endif //C_NORMALMAP_USE_CIMD
+#endif //C_NORMALMAP_NO_CIMD
 
 CINM_DEF int
 cinm_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type)
@@ -443,11 +443,11 @@ SINM_DEF int
 cinm_greyscale(const uint32_t *in, uint32_t *out, int32_t w, int32_t h, cinm_greyscale_type type)
 {
     int32_t count = w*h;
-#ifdef C_NORMALMAP_USE_CIMD
+#ifndef C_NORMALMAP_NO_CIMD
     if(count > 0 && count % CINM_CIMD_INCREMENT == 0) { 
         cinm__cimd_greyscale(in, out, w, h, type);
     } else {
-        return 0;
+        cinm__greyscale(in, out, w, h, type);
     }
 #else
     cinm__greyscale(in, out, w, h, type);
