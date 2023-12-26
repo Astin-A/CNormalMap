@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 #ifndef CINM_DEF
-#ifdef CINM_STATIC
+#ifdef C_NORMALMAP_STATIC
 #define CINM_DEF static
 #else
 #define CINM_DEF extern
