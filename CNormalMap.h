@@ -48,6 +48,7 @@ CINM_DEF void cinm_normal_map(const uint32_t *inBuffer, uint32_t *outBuffer, int
 
 #ifdef C_NORMALMAP_USE_SIMD
 
+#include <assert.h>
 #include <intrin.h> 
 #include <emmintrin.h> 
 
@@ -292,7 +293,9 @@ CINM_DEF void
 cinm_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type)
 {
 #ifdef C_NORMALMAP_USE_SIMD
-    cinm__cimd_greyscale(buffer, count, type);
+    if(count > 0 && count % SINM_SIMD_INCREMENT == 0) { 
+        sinm__simd_greyscale(buffer, count, type);
+    } 
 #else
     cinm__greyscale(buffer, count, type);
 #endif
