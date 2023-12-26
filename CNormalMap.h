@@ -37,7 +37,7 @@ enum cinm_greyscale_type;
 
 //Converts values in "buffer" to greyscale  using either the
 //lightness, average or luminance methods
-CINM_DEF void cinm_greyscale(uint32_t *buffer, int32_t count, greyscale_type type);
+CINM_DEF void cinm_greyscale(uint32_t *buffer, int32_t count, cinm_greyscale_type type);
 
 //Converts input buffer to a normal map and writes it to the output buffer
 //Colors should be converted to greyscale for proper results
